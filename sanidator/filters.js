@@ -11,11 +11,23 @@ module.exports = function (Sanidator) {
             this.err('invalid_mongoid')
         },
 
-        // If the value is not given, it may be considered valid fast
-        nullable:function (v, d, def) {
-            if (!v) {
-                this.val(def);
-                this.skip();
+        //
+        // Types
+        //
+
+        // Validates a date
+        date:function (v, d) {
+            try {
+                this.val((v = new Date(v)))
+                if (v == 'Invalid Date') {
+                    return this.err("invalid_date")
+                }
+            } catch (e) {
+                return this.err("invalid_date")
+            }
+
+            if (!(v instanceof Date)) {
+                this.err("date_expected")
             }
         },
 
@@ -29,8 +41,14 @@ module.exports = function (Sanidator) {
 
         // Garante que é um inteiro
         int:function (v, d) {
+            if (v instanceof Number) return
 
+            this.val(v = parseInt(v))
         },
+
+        //
+        // Nullables
+        //
 
         notNull:function (v) {
             if (!v) return this.err('notnull');
@@ -40,6 +58,14 @@ module.exports = function (Sanidator) {
             this.notNull()
         },
 
+        // If the value is not given, it may be considered valid fast
+        nullable:function (v, d, def) {
+            if (!v) {
+                this.val(def);
+                this.skip();
+            }
+        },
+
         'null':function (v) {
             if (v) return this.err('must_be_null');
         },
@@ -47,6 +73,7 @@ module.exports = function (Sanidator) {
         ignore:function () {
             this.val(null);
         },
+
 
         // Remove espaços em branco
         trim:function (v) {
