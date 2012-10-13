@@ -5,11 +5,14 @@ var utils = require('../../utils')
 module.exports = MethodHandler.extend({
 
     setup:function () {
-        this.defaultQuery = this.options.defaultQuery(this.model, this.context) || function () { return model; }
+        var self = this
+
+        this.defaultQuery = this.options.defaultQuery
+            ? this.options.defaultQuery(this.model, this.context)
+            : function () { return self.model }
 
         this.get(this.url)
 
-        var self = this;
         _.each(this.options.custom, function (queryBuilder, route) {
             self.get(route, self.queryHandler(queryBuilder(self.model)))
         })
@@ -67,11 +70,11 @@ module.exports = MethodHandler.extend({
 
             var query = queryBuilder.call(this, req, epi, queryCb)
             if (query && !epi.hasErrors()) {
-                if (typeof query == 'function') {
-                    return query(queryCb)
-                } else {
+//                if (typeof query == 'function') {
+//                    return query(queryCb)
+//                } else {
                     return queryCb(query)
-                }
+//                }
             }
         }
     },
